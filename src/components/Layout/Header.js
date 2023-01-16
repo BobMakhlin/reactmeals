@@ -1,29 +1,17 @@
 import classes from "./Header.module.css";
 import mealsImage from "../../assets/meals.jpg";
 import CartButton from "./CartButton";
-import CartModal from "../Cart/CartModal";
-import { useCallback, useState } from "react";
 
-const Header = () => {
-  const [modalIsVisible, setModalIsVisible] = useState(false);
-
-  const showModal = useCallback(() => {
-    setModalIsVisible(true);
-  }, []);
-  const hideModal = useCallback(() => {
-    setModalIsVisible(false);
-  }, []);
-
+const Header = (props) => {
   return (
     <>
       <header className={classes.header}>
         <h1>ReactMeals</h1>
-        <CartButton onClick={showModal} />
+        <CartButton onClick={props.onShowCart} />
       </header>
       <div className={classes["main-image"]}>
         <img src={mealsImage} alt="Meals" />
       </div>
-      {modalIsVisible && <CartModal onClose={hideModal} />}
     </>
   );
 };
