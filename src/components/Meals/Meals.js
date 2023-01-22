@@ -1,7 +1,8 @@
+import React from "react";
 import AvailableMeals from "./AvailableMeals";
 import MealsSummary from "./MealsSummary";
 
-const Meals = (props) => {
+const Meals = () => {
   return (
     <>
       <MealsSummary />
@@ -10,4 +11,4 @@ const Meals = (props) => {
   );
 };
 
-export default Meals;
+export default React.memo(Meals);

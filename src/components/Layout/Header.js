@@ -1,3 +1,4 @@
+import React from "react";
 import classes from "./Header.module.css";
 import mealsImage from "../../assets/meals.jpg";
 import CartButton from "./CartButton";
@@ -16,4 +17,4 @@ const Header = (props) => {
   );
 };
 
-export default Header;
+export default React.memo(Header);
