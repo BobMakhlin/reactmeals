@@ -4,8 +4,12 @@ import Modal from "../UI/Modal";
 import CartItem from "./CartItem";
 import classes from "./CartModal.module.css";
 import Checkout from "./Checkout";
+import { ref, set, push } from "firebase/database";
+import { db } from "../../config/firebase";
 
 const CartModal = (props) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [didSubmit, setDidSubmit] = useState(false);
   const [isCheckoutMode, setIsCheckoutMode] = useState(false);
   const cartCtx = useContext(CartContext);
 
@@ -15,8 +19,18 @@ const CartModal = (props) => {
   const handleOrderClick = useCallback(() => {
     setIsCheckoutMode(true);
   }, []);
-  const handleCheckoutFormSubmit = (values) => {
-    console.log('values:', values);
+  const handleCheckoutFormSubmit = async (checkoutValues) => {
+    setIsSubmitting(true);
+    const ordersRef = ref(db, "orders");
+    const newOrderRef = push(ordersRef);
+    await set(newOrderRef, {
+      checkoutInfo: checkoutValues,
+      items: cartCtx.items,
+    });
+
+    setIsSubmitting(false);
+    setDidSubmit(true);
+    cartCtx.clear();
   };
 
   const cartItems = (
@@ -47,9 +61,8 @@ const CartModal = (props) => {
       )}
     </div>
   );
-
-  return (
-    <Modal onClose={props.onClose}>
+  const cardModalContent = (
+    <>
       {cartItems}
       <div className={classes.total}>
         <span>Total Price</span>
@@ -62,6 +75,25 @@ const CartModal = (props) => {
         />
       )}
       {!isCheckoutMode && actions}
+    </>
+  );
+  const isSubmittingModalContent = <p>Sending order data...</p>;
+  const didSubmitModalContent = (
+    <>
+      <p>Successfully sent the order!</p>
+      <div className={classes.actions}>
+        <button onClick={props.onClose} className={classes.button}>
+          Close
+        </button>
+      </div>
+    </>
+  );
+
+  return (
+    <Modal onClose={props.onClose}>
+      {!isSubmitting && !didSubmit && cardModalContent}
+      {isSubmitting && isSubmittingModalContent}
+      {didSubmit && didSubmitModalContent}
     </Modal>
   );
 };

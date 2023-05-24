@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useCallback, useEffect, useReducer } from "react";
 
 const CartContext = React.createContext({
   items: [],
@@ -11,6 +11,9 @@ const CartContext = React.createContext({
     // By default is an empty dummy function.
   },
   incrementItemAmount: (id) => {
+    // By default is an empty dummy function.
+  },
+  clear: () => {
     // By default is an empty dummy function.
   },
 });
@@ -78,6 +81,10 @@ function cartReducer(state, action) {
     };
   }
 
+  if (action.type === "CLEAR") {
+    return { ...defaultCartState };
+  }
+
   throw new Error(`Unsupported action ${action.type}`);
 }
 
@@ -87,27 +94,31 @@ export const CartContextProvider = (props) => {
     defaultCartState
   );
 
-  const addItem = (item) => {
+  const addItem = useCallback((item) => {
     dispatchCartAction({ type: "ADD_ITEM", item });
-  };
-  const removeItem = (id) => {
+  }, []);
+  const removeItem = useCallback((id) => {
     dispatchCartAction({ type: "REMOVE_ITEM", id });
-  };
-  const incrementItemAmount = (id) => {
+  }, []);
+  const incrementItemAmount = useCallback((id) => {
     dispatchCartAction({ type: "INCREMENT_AMOUNT", id });
+  }, []);
+  const clear = useCallback(() => {
+    dispatchCartAction({ type: "CLEAR" });
+  }, []);
+
+  const contextValue = {
+    items: cartState.items,
+    totalAmount: cartState.totalAmount,
+    totalPrice: cartState.totalPrice,
+    addItem,
+    removeItem,
+    incrementItemAmount,
+    clear,
   };
 
   return (
-    <CartContext.Provider
-      value={{
-        items: cartState.items,
-        totalAmount: cartState.totalAmount,
-        totalPrice: cartState.totalPrice,
-        addItem,
-        removeItem,
-        incrementItemAmount,
-      }}
-    >
+    <CartContext.Provider value={contextValue}>
       {props.children}
     </CartContext.Provider>
   );
